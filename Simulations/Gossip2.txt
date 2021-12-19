@@ -1,0 +1,34 @@
+# PEERSIM EXAMPLE Allocation
+
+random.seed 1234567890
+simulation.cycles 20
+# control.shf Shuffle
+
+network.size 10
+ 
+protocol.lnk IdleProtocol
+
+protocol.gossip deployment.gossip.GossipAllocation
+protocol.gossip.linkable lnk
+ 
+init.rnd WireDomainRing
+init.rnd.protocol lnk
+init.rnd.undir false 
+init.rnd.domain_nodes 5
+
+
+init.GossipInit deployment.gossip.GossipInitializer
+#init.alloci.Main_Node_Index 0
+init.GossipInit.protocol gossip
+
+
+
+# you can change this to select the peak initializer instead
+include.init rnd  GossipInit
+
+control.observer1 deployment.gossip.GossipObserver
+control.observer1.protocol gossip
+
+
+control.observer2 deployment.gossip.CentralDeployer
+control.observer2.protocol gossip

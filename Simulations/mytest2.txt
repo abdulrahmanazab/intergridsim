@@ -1,0 +1,146 @@
+# PEERSIM EXAMPLE Allocation
+
+random.seed 1234567890
+#random.seed 1073741824
+simulation.cycles 20000
+simulation.application grid
+
+grid.print Simple
+
+###################components#################
+grid.components.no 2
+#grid.components.mincycles 200 # Default = simulation.cycles
+#grid.components.type random
+grid.components.type specific
+
+grid.components.1.cpu 2
+grid.components.1.memory 4
+grid.components.1.os LINUX
+grid.components.1.cycles 20000
+grid.components.2.cpu 2
+grid.components.2.memory 4
+grid.components.2.os WIN
+grid.components.2.cycles 20000
+
+grid.components.1.count 35000
+grid.components.2.count 40000
+
+###################nodes######################
+grid.nodes.no 2
+#grid.nodes.type random
+grid.nodes.type specific
+
+grid.nodes.1.cpu 4
+grid.nodes.1.memory 8
+grid.nodes.1.os LINUX
+grid.nodes.2.cpu 2 #4
+grid.nodes.2.memory 4
+grid.nodes.2.os WIN
+
+grid.nodes.1.poolcount 256 #+1 always in case of star topology
+grid.nodes.2.poolcount 256
+##############################################
+
+#control.shf Shuffle
+
+network.size 50000 #+1 always in case of star topology
+network.node GridNode
+
+grid.dataAge 100000
+ 
+protocol.lnk GridProtocol
+
+protocol.grid example.grid.GridCDProtocol
+protocol.grid.linkable lnk
+protocol.grid.exchangePeriod 100
+
+
+protocol.gridbroker example.grid.GridBrokerProtocol
+protocol.gridbroker.linkable lnk
+protocol.gridbroker.queueSize 50000
+#protocol.gridbroker.comparison async
+protocol.gridbroker.comparison sync
+#protocol.gridbroker.exchangePolicy adaptive
+#protocol.gridbroker.exchangePolicy rankingAdaptive
+#protocol.gridbroker.exchangePolicy random
+#protocol.gridbroker.exchangePolicy center
+#protocol.gridbroker.exchangePolicy flocking
+#protocol.gridbroker.exchangePolicy adaptiveflocking
+#protocol.gridbroker.exchangePolicy condorFlockP2P
+#protocol.gridbroker.exchangePolicy adaptivefuzzy
+protocol.gridbroker.exchangePolicy adaptivefuzzyRT
+
+
+protocol.deployHandle example.grid.GridDeployHandleProtocol
+protocol.deployHandle.linkable lnk
+ 
+#init.rnd example.grid.WireGridBrokerFull
+init.rnd example.grid.WireGridBrokerRing
+#init.rnd example.grid.WireGridBrokerKOut
+#init.rnd example.grid.WireGridBrokerHyperCube
+#init.rnd example.grid.WireGridBrokerStar
+init.rnd.protocol lnk
+init.rnd.undir false 
+init.rnd.brokers 512
+init.rnd.k 4
+
+init.gridInit example.grid.GridInitializer
+init.gridInit.protocol deployHandle
+
+init.gridCDInit example.grid.GridCDProtocolInitializer
+init.gridCDInit.protocol grid
+
+init.gridBrokerInit example.grid.GridBrokerInitializer
+init.gridBrokerInit.protocol gridbroker
+
+control.observer1 example.grid.GridObserver
+control.observer1.protocol deployHandle
+
+
+control.observer2 example.grid.GridPrintObserver
+#control.observer2.datatype historyDeviation
+#control.observer2.datatype brokerResourceKnowledge
+#control.observer2.datatype brokerQueue
+#control.observer2.datatype histogram
+control.observer2.datatype components
+control.observer2.outfile C:\D-Drive\D\PeerSim\peersim2009\Simulations\output.txt
+control.observer2.outfile.acc C:\D-Drive\D\PeerSim\peersim2009\Simulations\output-acc.txt
+control.observer2.outfile.test C:\D-Drive\D\PeerSim\peersim2009\Simulations\output-test.txt
+control.observer2.nodes.outdirectory C:\D-Drive\D\PeerSim\peersim2009\Simulations\output-nodes
+control.observer2.nodes.cyclestep 500
+
+
+control.deployer example.grid.GridDeployer
+control.deployer.method broker
+#control.deployer.deployMode distributed
+#control.deployer.deployMode loadbalancing
+#control.deployer.deployMode center
+control.deployer.deployMode sequences
+control.deployer.sequences.num 100 #20
+control.deployer.frequency 100
+#control.deployer.componentsPerTime 128
+control.deployer.componentsPerTime 100 #300
+control.deployer.totalComponents 75000
+control.deployer.waitingTime 100000
+#control.deployer.deployTrails 10
+control.deployer.protocol deployHandle
+
+control.failure example.grid.GridFailureControl
+#control.failure.mode permanent
+control.failure.mode churn
+control.failure.fallibleBrokers 40
+#control.failure.childNodes down
+control.failure.childNodes on
+#control.failure.childNodes divide
+control.failure.minInterval 50
+control.failure.maxInterval 100
+control.failure.maxFailures 100
+
+control.failure.protocol deployHandle
+
+# you can change this to select the peak initializer instead
+
+include.init rnd gridInit gridCDInit gridBrokerInit
+
+include.control deployer observer1 observer2
+#include.control deployer observer1 observer2 failure

@@ -1,0 +1,38 @@
+# PEERSIM EXAMPLE Allocation
+
+random.seed 1234567890
+simulation.cycles 10
+
+# control.shf Shuffle
+
+network.size 6
+ 
+protocol.lnk IdleProtocol
+
+protocol.alloc example.allocation.AllocationFunction
+protocol.alloc.linkable lnk
+ 
+#init.rnd WireDomainRing
+#init.rnd WireKOut
+init.rnd WireDomainStar
+init.rnd.protocol lnk
+init.rnd.undir false 
+init.rnd.domain_nodes 5
+#init.rnd.k 2
+
+init.alloci example.allocation.AllocationInitializer
+init.alloci.Main_Node_Index 0
+init.alloci.protocol alloc
+
+
+init.unif UniformDistribution
+init.unif.protocol alloc
+init.unif.max 100
+init.unif.min 1
+
+# you can change this to select the peak initializer instead
+include.init rnd  alloci unif 
+
+
+control.alloco example.allocation.AllocationObserver
+control.alloco.protocol alloc
